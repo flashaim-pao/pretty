@@ -2,7 +2,7 @@ package pretty
 
 import (
 	"bytes"
-	"encoding/json"
+	ejson "encoding/json"
 	"sort"
 	"strconv"
 )
@@ -235,7 +235,7 @@ func parsestr(s []byte) []byte {
 	for i := 1; i < len(s); i++ {
 		if s[i] == '\\' {
 			var str string
-			json.Unmarshal(s, &str)
+			ejson.Unmarshal(s, &str)
 			return []byte(str)
 		}
 		if s[i] == '"' {
@@ -387,7 +387,11 @@ func appendPrettyString(buf, json []byte, i, nl int) ([]byte, int, int, bool) {
 			break
 		}
 	}
-	return append(buf, json[s:i]...), i, nl, true
+	var str string
+	_ = ejson.Unmarshal(json[s:i], &str)
+	buf = append(buf, '"')
+	buf = append(buf, str...)
+	return append(buf, '"'), i, nl, true
 }
 
 func appendPrettyNumber(buf, json []byte, i, nl int) ([]byte, int, int, bool) {
